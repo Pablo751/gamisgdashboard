@@ -266,7 +266,6 @@ def update_platform_chart(selected_genre):
         else:
             return []
     
-    # Make sure to copy the DataFrame to avoid SettingWithCopyWarning
     filtered_df = filtered_df.copy()
     filtered_df['platforms'] = filtered_df['platforms'].apply(split_platforms)
     
