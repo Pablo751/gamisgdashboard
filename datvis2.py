@@ -9,8 +9,8 @@ app = Dash(__name__, suppress_callback_exceptions=True)
 
 
 # Read and preprocess the data
-df_countries = pd.read_csv('/Users/juanpablocasadobissone/Downloads/DV UNIBO/countries_table.csv')
-df = pd.read_csv('/Users/juanpablocasadobissone/Downloads/DV UNIBO/game_info.csv')
+df_countries = pd.read_csv('/countries_table.csv')
+df = pd.read_csv('./game_info.csv')
 df['released'] = pd.to_datetime(df['released'], errors='coerce')  # Convert to datetime
 df['year'] = df['released'].dt.year  # Extract year
 df['genres'] = df['genres'].apply(lambda x: x.split('||') if pd.notna(x) and isinstance(x, str) else [])
