@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Simple landing page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="vendors/owl-carousel/css/owl.carousel.min.css">
+  <link rel="stylesheet" href="vendors/owl-carousel/css/owl.theme.default.css">
+  <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="vendors/aos/css/aos.css">
+  <link rel="stylesheet" href="css/style.min.css">
+</head>
+<body id="body" data-spy="scroll" data-target=".navbar" data-offset="100">
+  <header id="header-section">
+<nav class="navbar navbar-expand-lg pl-3 pl-sm-0" id="navbar">
+  <div class="container">
+    <div class="collapse navbar-collapse navbar-menu-wrapper text-center" id="navbarSupportedContent"> 
+    </div>
+  </div> 
+</nav>
+  </header>
+  <div class="banner" >
+    <div class="container">
+      <h1 class="font-weight-semibold">The Gaming Universe: <br> A Data-Driven Exploration</br></h1>
+      <h6 class="font-weight-normal text-muted pb-3">From Pixels to Profit: A Complete Guide to Gaming Metrics</h6>
+
+      <img src="/Users/juanpablocasadobissone/Downloads/toppng.com-intendo-characters-png-pic-nintendo-characters-900x450.png" alt="" class="img-fluid">
+    </div>
+  </div>
+  <div class="content-wrapper">
+    <div class="container">
+      <section class="features-overview" id="features-section" >
+        <div class="content-header">
+          <h2>Introduction</h2>
+          <h6 class="section-subtitle text-muted">Welcome to our comprehensive dashboard that delves into the fascinating world of video games. Using data sourced from the RAWG API, this webpage aims to provide an in-depth analysis of various aspects of the gaming industry. From general trends to financial insights, we've got it all covered. The data has been meticulously processed and visualized to offer you a seamless experience as you explore the gaming universe. </h6>
+          <h6 class="section-subtitle text-muted">In the first graph of this page, <strong>Game Releases Over Time</strong> you will see a comprehensive look at the timeline of game releases, offering a historical perspective on the gaming industry's growth and evolution. By examining the number of games released each year, we can identify key periods of innovation, saturation, and transformation.</h6>
+        </div>
+      </section>     
+      <section class="digital-marketing-service pb-5" id="digital-marketing-section">
+      <div class="row align-items-center justify-content-center">
+        <!-- Removed grid-margin classes and set to take full-width -->
+        <div class="col-12 col-lg-12 text-center aos-init aos-animate" data-aos="fade-right">
+          <iframe src="http://127.0.0.1:8054/time-series-only" width="800" height="600" frameborder="0"></iframe>
+
+
+          <!-- Removed col-lg-7 col-xl-6 classes to make text take full width -->
+          <div class="p-0">
+            <p class="py-4 m-0 text-muted">This section serves as your gateway to understanding the broad landscape of the gaming world. Here, you'll find graphs that break down game releases by platform, genre, and ESRB ratings. These charts offer a snapshot of the industry's diversity and can help you grasp the scale and variety of games available in the market.</p>
+
+          </div>
+        </div>
+        <div class="col-12 col-lg-12 p-0 img-digital text-center aos-init aos-animate" data-aos="fade-left">
+          <!-- Added mx-auto to center image -->
+          <img src="/Users/juanpablocasadobissone/Downloads/sm3.png" alt="" class="img-fluid mx-auto">
+        </div>
+      </div>
+      <div class="row align-items-center justify-content-center">
+        <!-- Removed grid-margin classes and set to take full-width -->
+        <div class="col-12 col-lg-12 text-center flex-item aos-init aos-animate" data-aos="fade-left">
+          <iframe src="http://127.0.0.1:8054/platform-bar-chart" width="800" height="600" frameborder="0"></iframe>
+          <iframe src="http://127.0.0.1:8054/pie-chart" width="800" height="600" frameborder="0"></iframe>
+          <iframe src="http://127.0.0.1:8054/esrb-bar-chart" width="800" height="600" frameborder="0"></iframe>
+
+
+
+          <h3 class="m-0">Quality and Ratings</h3>
+          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
+          <div class="p-0">
+          <img src="/Users/juanpablocasadobissone/Downloads/halo-master-chief-helmet-aesthetic-sticker.png" alt="" class="img-fluid mx-auto" width="300">
+            <p class="py-4 m-0 text-muted">Here we focus on metrics that gauge the quality of games, such as Metacritic scores and user ratings. This section aims to provide a nuanced understanding of how games are received critically and popularly. Whether you're a developer looking for benchmarks or a gamer curious about how titles stack up, this section has something for you.</p>
+            <iframe src="http://127.0.0.1:8054/metacritic-histogram" width="800" height="600" frameborder="0"></iframe>
+            <iframe src="http://127.0.0.1:8054/correlation-scatter" width="800" height="600" frameborder="0"></iframe>
+            <iframe src="http://127.0.0.1:8054/scatter-plot" width="1200" height="600" frameborder="0"></iframe>
+
+
+
+          </div>
+
+
+          <h3 class="m-0">Trends and Popularity</h3>
+          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
+          <div class="p-0">
+          <img src="/Users/juanpablocasadobissone/Downloads/tr.png" class="img-fluid mx-auto" width="300">
+            <p class="py-4 m-0 text-muted">Here we dive yon the interests trends on specific games and genres over time. From the rise and fall of genres over time to which games are most owned and completed, this section offers a dynamic look at the ever-changing tastes and behaviors of gamers.</p>
+          </div>
+          <iframe src="http://127.0.0.1:8054/trend-line-plot" width="800" height="600" frameborder="0"></iframe>
+          <!-- Ownership Analysis: Most Owned Games -->
+          <iframe src="http://127.0.0.1:8054/ownership-bar-chart" width="800" height="600" frameborder="0"></iframe>
+
+          <!-- Completion Analysis: Most Beaten Games -->
+          <iframe src="http://127.0.0.1:8054/completion-bar-chart" width="800" height="600" frameborder="0"></iframe>
+
+
+
+          <h3 class="m-0">Financial Aspects</h3>
+          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
+          <div class="p-0">
+          <img src="/Users/juanpablocasadobissone/Downloads/across.png" aclass="img-fluid mx-auto" width="300">
+            <p class="py-4 m-0 text-muted">Last but not least, the "Financial Aspects" section delves into the monetary side of the gaming industry. Here, you'll find data on prize money by country, presented both in tabular and graphical formats. Whether you're an investor, a competitor, or just curious, this section provides valuable insights into the financial incentives and rewards in the gaming world.</p>
+          </div>
+          <!-- Prize Money by Country (Table) -->
+          <iframe src="http://127.0.0.1:8054/prize-money-table" width="800" height="600" frameborder="0"></iframe>
+
+          <!-- Prize Money by Country (Bar Chart) -->
+          <iframe src="http://127.0.0.1:8054/prize-money-bar-chart" width="800" height="600" frameborder="0"></iframe>
+        </div>
+      </div>
+      <footer class="border-top">
+        <p class="text-center text-muted pt-4"><a href="https://github.com/Pablo751/DataVis?files=1#database-extraction/" class="px-1">About this project</a></p>
+      </footer>
+      <!-- Modal for Contact - us Button -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="Name">Name</label>
+                  <input type="text" class="form-control" id="Name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                  <label for="Email">Email</label>
+                  <input type="email" class="form-control" id="Email-1" placeholder="Email">
+                </div>
+                <div class="form-group">
+                  <label for="Message">Message</label>
+                  <textarea class="form-control" id="Message" placeholder="Enter your Message"></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-success">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
+  <script src="vendors/jquery/jquery.min.js"></script>
+  <script src="vendors/bootstrap/bootstrap.min.js"></script>
+  <script src="vendors/owl-carousel/js/owl.carousel.min.js"></script>
+  <script src="vendors/aos/js/aos.js"></script>
+  <script src="js/landingpage.js"></script>
+</body>
+</html>
