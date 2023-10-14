@@ -25,6 +25,7 @@
     - [Prize Money by Country (Table)](#10-prize-money-by-country-table)
     - [Prize Money by Country (Bar Chart)](#11-prize-money-by-country-bar-chart)
   - [Callbacks](#callbacks)
+  - [Conclusion](#conclusion)
 
 ## Introduction
 This project aims to provide a comprehensive dashboard for gaming analytics. It utilizes Dash and Plotly for the backend and a Bootstrap template for the frontend. The data is sourced from the RAWG API.
@@ -179,5 +180,15 @@ The Dash app uses callbacks to update each chart based on user input from dropdo
 
 For example, in the `update_scatter` function, the scatter plot updates based on the selected genre. The data is filtered, and a new Plotly figure is returned.
 
+## Conclusion
 
+This project aims to provide a well ordered and user-friendly platform for gaming analytics. Utilizing Python for setting the backend side of things and Dash and Plotly for data visualization, the project offers a centralized web to understanding various aspects of the gaming industry.
+
+The dashboard is designed to be interactive, allowing users to filter data based on different criteria such as genre and platform. This functionality enhances the utility of the dashboard for a range of users, including researchers, game developers, and people interested in gaming metrics.
+
+Data sourcing and preprocessing are key components of this project. The data is obtained from Kaggle's RAWG Game Dataset, which provides a comprehensive set of gaming metrics. This dataset is then processed and transformed to fit the analytical needs of the project, ensuring that the visualizations are both accurate and meaningful.
+
+The project also includes various types of analyses, from basic distribution charts to more complex correlations and trends. These analyses offer a more nuanced understanding of the gaming landscape, providing insights into areas like genre popularity, user ratings, and game ownership.
+
+In terms of future development, there are several avenues for expansion. Real-time data integration and the inclusion of more advanced analytical methods, such as predictive analytics, could be considered to enhance the project's capabilities.
 
