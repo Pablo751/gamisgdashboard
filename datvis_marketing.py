@@ -845,12 +845,29 @@ def update_success_factors(pathname):
 )
 def update_top_reviewed_analysis(selected_genre):
     if selected_genre == 'All Games':
-        filtered_df = df_marketing_exploded[df_marketing_exploded['metacritic'].notna()]
+        filtered_df = df_marketing_exploded_clean[df_marketing_exploded_clean['metacritic'].notna()]
     else:
-        filtered_df = df_marketing_exploded[
-            (df_marketing_exploded['genres'] == selected_genre) & 
-            (df_marketing_exploded['metacritic'].notna())
+        # Use the same filtering logic as other charts
+        filtered_df = df_marketing_exploded_clean[
+            (df_marketing_exploded_clean['genres'] == selected_genre) & 
+            (df_marketing_exploded_clean['metacritic'].notna())
         ]
+    
+    # If no games found, show message
+    if filtered_df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text=f"No games with Metacritic scores found for {selected_genre}",
+            xref="paper", yref="paper", x=0.5, y=0.5,
+            showarrow=False, font=dict(size=16)
+        )
+        fig.update_layout(
+            title=f'Top Critically Reviewed Games - {selected_genre}',
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            height=400
+        )
+        return fig
     
     # Sort by actual Metacritic scores
     top_reviewed = filtered_df.nlargest(15, 'metacritic')
@@ -860,7 +877,7 @@ def update_top_reviewed_analysis(selected_genre):
         x='metacritic',
         y='name', 
         color='metacritic',
-        title=f'Top Critically Reviewed Games - {selected_genre}',
+        title=f'Top Critically Reviewed Games - {selected_genre} ({len(top_reviewed)} games)',
         labels={
             'metacritic': 'Metacritic Score',
             'name': 'Game Title'
