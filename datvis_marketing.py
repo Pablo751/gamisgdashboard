@@ -308,12 +308,97 @@ marketing_layout = html.Div([
     ], className="recommendations-section"),
     
     # Top Critically Reviewed Games
-    create_enhanced_chart_section(
-        "Top Critically Reviewed Games", 
-        "top-reviewed-analysis",
-        include_dropdown=True,
-        description="Highest-rated games by professional critics - shows critical acclaim vs community engagement patterns"
-    ),
+    html.Div([
+        html.H2("Top Critically Reviewed Games", className="chart-title"),
+        html.P("Highest-rated games by professional critics - shows critical acclaim vs community engagement patterns", className="chart-description"),
+        dcc.Dropdown(
+            id='top-reviewed-dropdown',
+            options=[{'label': 'All Games', 'value': 'All Games'}] + 
+                   [{'label': genre, 'value': genre} for genre in unique_genres],
+            value='All Games',
+            className="genre-dropdown"
+        ),
+        dcc.Loading(
+            id="loading-top-reviewed-table",
+            type="default",
+            children=[dash_table.DataTable(
+                id='top-reviewed-table',
+                columns=[
+                    {"name": "Game Title", "id": "name", "type": "text"},
+                    {"name": "Genre", "id": "genres", "type": "text"},  
+                    {"name": "Score", "id": "metacritic", "type": "numeric"},
+                    {"name": "Rating", "id": "rating", "type": "numeric"},
+                    {"name": "Platform(s)", "id": "platforms", "type": "text"},
+                    {"name": "Year", "id": "year", "type": "numeric"},
+                    {"name": "Users", "id": "total_users", "type": "text"}
+                ],
+                style_table={
+                    'overflowX': 'auto',
+                    'minWidth': '100%',
+                    'width': '100%',
+                    'maxWidth': '100%'
+                },
+                style_cell={
+                    'textAlign': 'left', 
+                    'padding': '8px', 
+                    'fontSize': '13px',
+                    'fontFamily': 'Arial, sans-serif',
+                    'whiteSpace': 'normal',
+                    'height': 'auto',
+                    'minWidth': '80px',
+                    'maxWidth': '200px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis'
+                },
+                style_cell_conditional=[
+                    {'if': {'column_id': 'name'}, 'width': '25%', 'maxWidth': '200px'},
+                    {'if': {'column_id': 'genres'}, 'width': '12%', 'maxWidth': '100px'},
+                    {'if': {'column_id': 'metacritic'}, 'width': '8%', 'maxWidth': '80px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'rating'}, 'width': '8%', 'maxWidth': '80px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'platforms'}, 'width': '30%', 'maxWidth': '250px'},
+                    {'if': {'column_id': 'year'}, 'width': '8%', 'maxWidth': '80px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'total_users'}, 'width': '9%', 'maxWidth': '90px', 'textAlign': 'right'}
+                ],
+                style_header={
+                    'backgroundColor': '#2c3e50', 
+                    'color': 'white', 
+                    'fontWeight': 'bold',
+                    'textAlign': 'center',
+                    'fontSize': '12px',
+                    'padding': '10px'
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'column_id': 'metacritic'},
+                        'backgroundColor': '#e8f6f3',
+                        'color': 'black',
+                        'fontWeight': 'bold'
+                    },
+                    {
+                        'if': {
+                            'filter_query': '{metacritic} >= 90',
+                            'column_id': 'metacritic'
+                        },
+                        'backgroundColor': '#27ae60',
+                        'color': 'white',
+                    },
+                    {
+                        'if': {
+                            'filter_query': '{metacritic} >= 80 && {metacritic} < 90',
+                            'column_id': 'metacritic'
+                        },
+                        'backgroundColor': '#f39c12',
+                        'color': 'white',
+                    }
+                ],
+                page_size=20,
+                sort_action="native",
+                filter_action="native"
+            )],
+            style={"margin": "20px 0"}
+        ),
+        html.Hr(className="section-divider")
+    ], className="chart-section"),
     
     # Top Marketing Appeal Analysis
     create_enhanced_chart_section(
@@ -838,12 +923,12 @@ def update_success_factors(pathname):
     
     return fig
 
-# Add new callback for actual top reviewed games (by Metacritic)
+# New callback for top reviewed games table
 @app.callback(
-    Output('top-reviewed-analysis', 'figure'),
+    Output('top-reviewed-table', 'data'),
     [Input('top-reviewed-dropdown', 'value')]
 )
-def update_top_reviewed_analysis(selected_genre):
+def update_top_reviewed_table(selected_genre):
     if selected_genre == 'All Games':
         filtered_df = df_marketing_exploded_clean[df_marketing_exploded_clean['metacritic'].notna()]
     else:
@@ -853,41 +938,44 @@ def update_top_reviewed_analysis(selected_genre):
             (df_marketing_exploded_clean['metacritic'].notna())
         ]
     
-    # If no games found, show message
+    # If no games found, return empty list
     if filtered_df.empty:
-        fig = go.Figure()
-        fig.add_annotation(
-            text=f"No games with Metacritic scores found for {selected_genre}",
-            xref="paper", yref="paper", x=0.5, y=0.5,
-            showarrow=False, font=dict(size=16)
-        )
-        fig.update_layout(
-            title=f'Top Critically Reviewed Games - {selected_genre}',
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            height=400
-        )
-        return fig
+        return []
     
-    # Sort by actual Metacritic scores
-    top_reviewed = filtered_df.nlargest(15, 'metacritic')
+    # Sort by actual Metacritic scores and get top 50
+    top_reviewed = filtered_df.nlargest(50, 'metacritic')
     
-    fig = px.bar(
-        top_reviewed,
-        x='metacritic',
-        y='name', 
-        color='metacritic',
-        title=f'Top Critically Reviewed Games - {selected_genre} ({len(top_reviewed)} games)',
-        labels={
-            'metacritic': 'Metacritic Score',
-            'name': 'Game Title'
-        },
-        color_continuous_scale='RdYlGn',
-        height=800
-    )
+    # Format data for table
+    table_data = []
+    for _, row in top_reviewed.iterrows():
+        # Clean and format platforms - make them much shorter
+        platforms = str(row.get('platforms', 'N/A'))
+        if platforms and platforms != 'nan':
+            # Shorten common platform names
+            platforms = platforms.replace('PlayStation', 'PS').replace('Nintendo Switch', 'Switch')
+            platforms = platforms.replace('Xbox Series S/X', 'Xbox S/X').replace('Xbox One', 'XB1')
+            platforms = platforms.replace('GameCube', 'GC').replace('Android', 'Mobile')
+            if len(platforms) > 35:
+                platforms = platforms[:32] + '...'
+        else:
+            platforms = 'N/A'
+        
+        # Shorter game titles
+        game_title = str(row['name'])
+        if len(game_title) > 30:
+            game_title = game_title[:27] + '...'
+            
+        table_data.append({
+            'name': game_title,
+            'genres': str(row['genres']),
+            'metacritic': int(row['metacritic']) if pd.notna(row['metacritic']) else 'N/A',
+            'rating': f"{row['rating']:.1f}" if pd.notna(row['rating']) else 'N/A',
+            'platforms': platforms,
+            'year': int(row['year']) if pd.notna(row['year']) else 'N/A',
+            'total_users': f"{int(row['total_users']):,}" if pd.notna(row['total_users']) else '0'
+        })
     
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-    return fig
+    return table_data
 
 # Routing callback
 @app.callback(
@@ -1019,4 +1107,4 @@ app.index_string = '''
 '''
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8055, host='0.0.0.0') 
+    app.run(debug=True, port=8055, host='0.0.0.0') 
