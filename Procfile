@@ -1,0 +1,1 @@
+web: gunicorn datvis_marketing:server 

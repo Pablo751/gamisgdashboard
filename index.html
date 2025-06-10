@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Simple landing page</title>
+  <title>Gaming Marketing Analytics Dashboard</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -11,139 +10,351 @@
   <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
   <link rel="stylesheet" href="vendors/aos/css/aos.css">
   <link rel="stylesheet" href="css/style.min.css">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --light-gray: #f8f9fa;
+      --dark-gray: #7f8c8d;
+    }
+    
+    .marketing-hero {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+    
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-subtitle {
+      font-size: 1.4rem;
+      margin-bottom: 40px;
+      opacity: 0.9;
+    }
+    
+    .cta-button {
+      background: var(--accent-color);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 60px 0;
+    }
+    
+    .feature-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+      border-top: 4px solid var(--primary-color);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    
+    .feature-title {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    
+    .feature-description {
+      color: var(--dark-gray);
+      line-height: 1.6;
+    }
+    
+    .metrics-section {
+      background: var(--light-gray);
+      padding: 80px 0;
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      text-align: center;
+    }
+    
+    .metric-card {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .metric-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: block;
+    }
+    
+    .metric-label {
+      color: var(--dark-gray);
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    
+    .dashboard-preview {
+      margin: 60px 0;
+      text-align: center;
+    }
+    
+    .preview-iframe {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      width: 100%;
+      height: 600px;
+    }
+    
+    .section-title {
+      color: var(--secondary-color);
+      font-size: 2.5rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .section-subtitle {
+      color: var(--dark-gray);
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 50px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .tech-stack {
+      background: white;
+      padding: 60px 0;
+    }
+    
+    .tech-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .tech-badge {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .footer-marketing {
+      background: var(--secondary-color);
+      color: white;
+      padding: 40px 0;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.5rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body id="body" data-spy="scroll" data-target=".navbar" data-offset="100">
+  
+  <!-- Header -->
   <header id="header-section">
-<nav class="navbar navbar-expand-lg pl-3 pl-sm-0" id="navbar">
-  <div class="container">
-    <div class="collapse navbar-collapse navbar-menu-wrapper text-center" id="navbarSupportedContent"> 
-    </div>
-  </div> 
-</nav>
+    <nav class="navbar navbar-expand-lg pl-3 pl-sm-0" id="navbar">
+      <div class="container">
+        <div class="collapse navbar-collapse navbar-menu-wrapper text-center" id="navbarSupportedContent"> 
+          <a class="navbar-brand" href="#" style="color: #3498db; font-weight: bold; font-size: 1.5rem;">
+            📊 GameMetrics Pro
+          </a>
+        </div>
+      </div> 
+    </nav>
   </header>
-  <div class="banner" >
-    <div class="container">
-      <h1 class="font-weight-semibold">The Gaming Universe: <br> A Data-Driven Exploration</br></h1>
-      <h6 class="font-weight-normal text-muted pb-3">From Pixels to Profit: A Complete Guide to Gaming Metrics</h6>
 
-    <img src="https://raw.githubusercontent.com/Pablo751/DataVis/main/images/toppng.com-intendo-characters-png-pic-nintendo-characters-900x450.png" alt="" class="img-fluid">
+  <!-- Hero Section -->
+  <section class="marketing-hero">
+    <div class="container">
+      <h1 class="hero-title">Gaming Marketing Analytics</h1>
+      <p class="hero-subtitle">Transform gaming data into actionable marketing insights with advanced customer lifecycle analysis, cohort tracking, and engagement scoring</p>
+             <a href="https://your-app-name.up.railway.app/" target="_blank" class="cta-button">
+         🚀 Launch Dashboard
+       </a>
     </div>
-  </div>
-  <div class="content-wrapper">
+  </section>
+
+  <!-- Key Metrics Section -->
+  <section class="metrics-section">
     <div class="container">
-      <section class="features-overview" id="features-section" >
-        <div class="content-header">
-          <h2>Introduction</h2>
-          <h6 class="section-subtitle text-muted">Welcome to our comprehensive dashboard that delves into the fascinating world of video games. Using data sourced from the RAWG API, this webpage aims to provide an in-depth analysis of various aspects of the gaming industry. From general trends to financial insights, we've got it all covered. The data has been meticulously processed and visualized to offer you a seamless experience as you explore the gaming universe. </h6>
-          <h6 class="section-subtitle text-muted">In the first graph of this page, <strong>Game Releases Over Time</strong> you will see a comprehensive look at the timeline of game releases, offering a historical perspective on the gaming industry's growth and evolution. By examining the number of games released each year, we can identify key periods of innovation, saturation, and transformation.</h6>
+      <h2 class="section-title">Key Insights</h2>
+      <p class="section-subtitle">Real metrics from our comprehensive gaming industry analysis</p>
+      
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-number">850K+</span>
+          <p class="metric-label">Games Analyzed</p>
         </div>
-      </section>     
-      <section class="digital-marketing-service pb-5" id="digital-marketing-section">
-      <div class="row align-items-center justify-content-center">
-        <!-- Removed grid-margin classes and set to take full-width -->
-        <div class="col-12 col-lg-12 text-center aos-init aos-animate" data-aos="fade-right">
-          <iframe src="http://127.0.0.1:8054/time-series-only" width="800" height="600" frameborder="0"></iframe>
-
-
-          <!-- Removed col-lg-7 col-xl-6 classes to make text take full width -->
-          <div class="p-0">
-            <p class="py-4 m-0 text-muted">This section serves as your gateway to understanding the broad landscape of the gaming world. Here, you'll find graphs that break down game releases by platform, genre, and ESRB ratings. These charts offer a snapshot of the industry's diversity and can help you grasp the scale and variety of games available in the market.</p>
-
-          </div>
+        <div class="metric-card">
+          <span class="metric-number">73MB</span>
+          <p class="metric-label">Data Processed</p>
         </div>
-        <div class="col-12 col-lg-12 p-0 img-digital text-center aos-init aos-animate" data-aos="fade-left">
-          <!-- Added mx-auto to center image -->
-          <img src="https://raw.githubusercontent.com/Pablo751/DataVis/main/images/sm3.png" alt="" class="img-fluid mx-auto">
+        <div class="metric-card">
+          <span class="metric-number">6</span>
+          <p class="metric-label">Marketing KPIs</p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-number">15+</span>
+          <p class="metric-label">Visualizations</p>
         </div>
       </div>
-      <div class="row align-items-center justify-content-center">
-        <!-- Removed grid-margin classes and set to take full-width -->
-        <div class="col-12 col-lg-12 text-center flex-item aos-init aos-animate" data-aos="fade-left">
-          <iframe src="http://127.0.0.1:8054/platform-bar-chart" width="800" height="600" frameborder="0"></iframe>
-          <iframe src="http://127.0.0.1:8054/pie-chart" width="800" height="600" frameborder="0"></iframe>
-          <iframe src="http://127.0.0.1:8054/esrb-bar-chart" width="800" height="600" frameborder="0"></iframe>
+    </div>
+  </section>
 
-
-
-          <h3 class="m-0">Quality and Ratings</h3>
-          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
-          <div class="p-0">
-          <img src="https://raw.githubusercontent.com/Pablo751/DataVis/main/images/halo-master-chief-helmet-aesthetic-sticker.png" alt="" class="img-fluid mx-auto" width="300">
-            <p class="py-4 m-0 text-muted">Here we focus on metrics that gauge the quality of games, such as Metacritic scores and user ratings. This section aims to provide a nuanced understanding of how games are received critically and popularly. Whether you're a developer looking for benchmarks or a gamer curious about how titles stack up, this section has something for you.</p>
-            <iframe src="http://127.0.0.1:8054/metacritic-histogram" width="800" height="600" frameborder="0"></iframe>
-            <iframe src="http://127.0.0.1:8054/correlation-scatter" width="800" height="600" frameborder="0"></iframe>
-            <iframe src="http://127.0.0.1:8054/scatter-plot" width="1200" height="600" frameborder="0"></iframe>
-
-
-
-          </div>
-
-
-          <h3 class="m-0">Trends and Popularity</h3>
-          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
-          <div class="p-0">
-          <img src="https://raw.githubusercontent.com/Pablo751/DataVis/main/images/tr.png" class="img-fluid mx-auto" width="300">
-            <p class="py-4 m-0 text-muted">Here we dive yon the interests trends on specific games and genres over time. From the rise and fall of genres over time to which games are most owned and completed, this section offers a dynamic look at the ever-changing tastes and behaviors of gamers.</p>
-          </div>
-          <iframe src="http://127.0.0.1:8054/trend-line-plot" width="800" height="600" frameborder="0"></iframe>
-          <!-- Ownership Analysis: Most Owned Games -->
-          <iframe src="http://127.0.0.1:8054/ownership-bar-chart" width="800" height="600" frameborder="0"></iframe>
-
-          <!-- Completion Analysis: Most Beaten Games -->
-          <iframe src="http://127.0.0.1:8054/completion-bar-chart" width="800" height="600" frameborder="0"></iframe>
-
-
-
-          <h3 class="m-0">Financial Aspects</h3>
-          <!-- Removed col-lg-9 col-xl-8 classes to make text take full width -->
-          <div class="p-0">
-          <img src="https://raw.githubusercontent.com/Pablo751/DataVis/main/images/across.png" aclass="img-fluid mx-auto" width="300">
-            <p class="py-4 m-0 text-muted">Last but not least, the "Financial Aspects" section delves into the monetary side of the gaming industry. Here, you'll find data on prize money by country, presented both in tabular and graphical formats. Whether you're an investor, a competitor, or just curious, this section provides valuable insights into the financial incentives and rewards in the gaming world.</p>
-          </div>
-          <!-- Prize Money by Country (Table) -->
-          <iframe src="http://127.0.0.1:8054/prize-money-table" width="800" height="600" frameborder="0"></iframe>
-
-          <!-- Prize Money by Country (Bar Chart) -->
-          <iframe src="http://127.0.0.1:8054/prize-money-bar-chart" width="800" height="600" frameborder="0"></iframe>
-        </div>
+  <!-- Features Section -->
+  <section class="container">
+    <h2 class="section-title">Marketing Intelligence Features</h2>
+    <p class="section-subtitle">Purpose-built analytics for marketing engineers and growth teams</p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3 class="feature-title">Customer Lifecycle Funnels</h3>
+        <p class="feature-description">Track user journey from awareness to completion with conversion rate optimization insights. Identify drop-off points and improvement opportunities.</p>
       </div>
-      <footer class="border-top">
-        <p class="text-center text-muted pt-4">About this project<a href="https://github.com/Pablo751/DataVis?files=1#database-extraction/" class="px-1">.</a></p>
-      </footer>
-      <!-- Modal for Contact - us Button -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-
-            <div class="modal-body">
-              <form>
-                <div class="form-group">
-                  <label for="Name">Name</label>
-                  <input type="text" class="form-control" id="Name" placeholder="Name">
-                </div>
-                <div class="form-group">
-                  <label for="Email">Email</label>
-                  <input type="email" class="form-control" id="Email-1" placeholder="Email">
-                </div>
-                <div class="form-group">
-                  <label for="Message">Message</label>
-                  <textarea class="form-control" id="Message" placeholder="Enter your Message"></textarea>
-                </div>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-success">Submit</button>
-            </div>
-          </div>
-        </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3 class="feature-title">Cohort Performance Analysis</h3>
+        <p class="feature-description">Year-over-year performance trends to identify market shifts. Understand how different game release cohorts perform over time.</p>
       </div>
-    </div> 
-  </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔥</div>
+        <h3 class="feature-title">Engagement Scoring Model</h3>
+        <p class="feature-description">Proprietary 0-100 engagement score combining ownership, activity, and completion metrics. Perfect for segmentation and targeting.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Churn & Retention Analysis</h3>
+        <p class="feature-description">Identify patterns in user drop-off rates by genre and platform. Develop data-driven retention strategies.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🎮</div>
+        <h3 class="feature-title">Market Penetration Insights</h3>
+        <p class="feature-description">Platform adoption rates and market share analysis. Optimal channel strategy recommendations based on engagement data.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3 class="feature-title">Strategic Recommendations</h3>
+        <p class="feature-description">AI-powered business recommendations based on data patterns. Actionable insights for content strategy and marketing investment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Preview -->
+  <section class="dashboard-preview">
+    <div class="container">
+      <h2 class="section-title">Live Dashboard Preview</h2>
+      <p class="section-subtitle">Explore the interactive marketing analytics in real-time</p>
+      
+             <iframe src="https://your-app-name.up.railway.app/" class="preview-iframe"></iframe>
+       
+       <div style="margin-top: 30px;">
+         <a href="https://your-app-name.up.railway.app/" target="_blank" class="cta-button">
+           Open Full Dashboard
+         </a>
+       </div>
+    </div>
+  </section>
+
+  <!-- Technology Stack -->
+  <section class="tech-stack">
+    <div class="container">
+      <h2 class="section-title">Technology Stack</h2>
+      <p class="section-subtitle">Built with modern data science and web technologies</p>
+      
+      <div class="tech-badges">
+        <span class="tech-badge">Python</span>
+        <span class="tech-badge">Dash & Plotly</span>
+        <span class="tech-badge">Pandas & NumPy</span>
+        <span class="tech-badge">Advanced Analytics</span>
+        <span class="tech-badge">Real-time Visualization</span>
+        <span class="tech-badge">Responsive Design</span>
+        <span class="tech-badge">Interactive Filtering</span>
+        <span class="tech-badge">Custom KPIs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="marketing-hero" style="padding: 60px 0;">
+    <div class="container">
+      <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Ready to Explore?</h2>
+      <p style="font-size: 1.2rem; margin-bottom: 30px;">Dive into comprehensive gaming marketing analytics</p>
+             <a href="https://your-app-name.up.railway.app/" target="_blank" class="cta-button">
+         Launch Marketing Dashboard
+       </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-marketing">
+    <div class="container">
+      <p>&copy; 2024 Gaming Marketing Analytics Dashboard. Built for portfolio demonstration.</p>
+      <p style="margin-top: 10px;">
+        <a href="https://github.com/Pablo751/DataVis" style="color: #3498db; text-decoration: none;">
+          📂 View Source Code
+        </a>
+      </p>
+    </div>
+  </footer>
+
   <script src="vendors/jquery/jquery.min.js"></script>
   <script src="vendors/bootstrap/bootstrap.min.js"></script>
   <script src="vendors/owl-carousel/js/owl.carousel.min.js"></script>
   <script src="vendors/aos/js/aos.js"></script>
   <script src="js/landingpage.js"></script>
 </body>
-</html>
+</html> 
