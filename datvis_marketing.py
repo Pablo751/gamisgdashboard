@@ -307,12 +307,20 @@ marketing_layout = html.Div([
         html.Div(id="business-recommendations", className="recommendations-content")
     ], className="recommendations-section"),
     
-    # Top Performing Games Analysis
+    # Top Critically Reviewed Games
     create_enhanced_chart_section(
-        "Top Reviewed Games Analysis", 
+        "Top Critically Reviewed Games", 
+        "top-reviewed-analysis",
+        include_dropdown=True,
+        description="Highest-rated games by professional critics - shows critical acclaim vs community engagement patterns"
+    ),
+    
+    # Top Marketing Appeal Analysis
+    create_enhanced_chart_section(
+        "Top Marketing Appeal Analysis", 
         "top-games-analysis",
         include_dropdown=True,
-        description="Identify market leaders and success patterns for competitive intelligence and content strategy"
+        description="Games with highest marketing potential based on community engagement, brand strength, and viral coefficient"
     ),
     
     # Review Quality vs Volume Matrix  
@@ -700,7 +708,7 @@ def update_top_games_analysis(selected_genre):
         x='combined_score',
         y='name', 
         color='metacritic',
-        title=f'Top Reviewed Games - {selected_genre}',
+        title=f'Top Marketing Appeal Games - {selected_genre}',
         labels={
             'combined_score': 'Marketing Appeal Score (0-100)',
             'name': 'Game Title',
@@ -828,6 +836,40 @@ def update_success_factors(pathname):
     fig.update_traces(text=corr_matrix.round(2), texttemplate="%{text}")
     fig.update_layout(height=600)
     
+    return fig
+
+# Add new callback for actual top reviewed games (by Metacritic)
+@app.callback(
+    Output('top-reviewed-analysis', 'figure'),
+    [Input('top-reviewed-dropdown', 'value')]
+)
+def update_top_reviewed_analysis(selected_genre):
+    if selected_genre == 'All Games':
+        filtered_df = df_marketing_exploded[df_marketing_exploded['metacritic'].notna()]
+    else:
+        filtered_df = df_marketing_exploded[
+            (df_marketing_exploded['genres'] == selected_genre) & 
+            (df_marketing_exploded['metacritic'].notna())
+        ]
+    
+    # Sort by actual Metacritic scores
+    top_reviewed = filtered_df.nlargest(15, 'metacritic')
+    
+    fig = px.bar(
+        top_reviewed,
+        x='metacritic',
+        y='name', 
+        color='metacritic',
+        title=f'Top Critically Reviewed Games - {selected_genre}',
+        labels={
+            'metacritic': 'Metacritic Score',
+            'name': 'Game Title'
+        },
+        color_continuous_scale='RdYlGn',
+        height=800
+    )
+    
+    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
     return fig
 
 # Routing callback
