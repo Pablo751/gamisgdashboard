@@ -15,6 +15,21 @@ server = app.server
 # Read and preprocess the data
 df_countries = pd.read_csv('countries_table.csv')
 df = pd.read_csv('game_info.csv')
+
+# Clean data to prevent JSON serialization issues
+def clean_text(text):
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+    # Remove control characters that cause JSON issues
+    import re
+    return re.sub(r'[\x00-\x1f\x7f-\x9f]', '', text)
+
+# Clean text columns that might have control characters
+text_columns = ['name', 'slug', 'website', 'platforms', 'developers', 'genres', 'publishers', 'esrb_rating']
+for col in text_columns:
+    if col in df.columns:
+        df[col] = df[col].apply(clean_text)
+
 df['released'] = pd.to_datetime(df['released'], errors='coerce')
 df['year'] = df['released'].dt.year
 df['genres'] = df['genres'].apply(lambda x: x.split('||') if pd.notna(x) and isinstance(x, str) else [])
@@ -159,7 +174,12 @@ def create_enhanced_chart_section(title, chart_id, include_dropdown=False, descr
         layout.append(dropdown)
     
     layout.extend([
-        dcc.Graph(id=chart_id, className="chart-graph"),
+        dcc.Loading(
+            id=f"loading-{chart_id}",
+            type="default",
+            children=[dcc.Graph(id=chart_id, className="chart-graph")],
+            style={"margin": "20px 0"}
+        ),
         html.Hr(className="section-divider")
     ])
     
@@ -171,7 +191,12 @@ marketing_layout = html.Div([
     html.P("Data-driven insights for marketing strategy and customer engagement optimization", 
            className="main-subtitle"),
     
-    create_marketing_kpi_cards(),
+    dcc.Loading(
+        id="loading-kpis",
+        type="default", 
+        children=[create_marketing_kpi_cards()],
+        style={"margin": "20px 0"}
+    ),
     
     # Customer Lifecycle Analysis
     create_enhanced_chart_section(
@@ -239,45 +264,54 @@ app.layout = html.Div([
     [Input('lifecycle-funnel-dropdown', 'value')]
 )
 def update_lifecycle_funnel(selected_genre):
-    if selected_genre == 'All Games':
-        filtered_df = df_marketing
-    else:
-        filtered_df = df_marketing[df_marketing['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
-    
-    # Calculate funnel metrics
-    total_awareness = filtered_df['total_users'].sum()
-    total_owned = filtered_df['added_status_owned'].sum()
-    total_playing = filtered_df['added_status_playing'].sum()
-    total_completed = filtered_df['added_status_beaten'].sum()
-    
-    stages = ['Awareness', 'Ownership', 'Active Use', 'Completion']
-    values = [total_awareness, total_owned, total_playing, total_completed]
-    
-    # Calculate conversion rates
-    conversion_rates = [100]  # Start at 100% for awareness
-    for i in range(1, len(values)):
-        if values[0] > 0:
-            conversion_rates.append((values[i] / values[0]) * 100)
+    try:
+        if selected_genre == 'All Games':
+            filtered_df = df_marketing
         else:
-            conversion_rates.append(0)
-    
-    fig = go.Figure()
-    
-    # Funnel chart
-    fig.add_trace(go.Funnel(
-        y=stages,
-        x=values,
-        textinfo="value+percent initial",
-        marker=dict(color=["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"])
-    ))
-    
-    fig.update_layout(
-        title=f"Customer Lifecycle Funnel - {selected_genre}",
-        font=dict(size=12),
-        height=500
-    )
-    
-    return fig
+            filtered_df = df_marketing[df_marketing['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
+        
+        # Calculate funnel metrics
+        total_awareness = filtered_df['total_users'].sum()
+        total_owned = filtered_df['added_status_owned'].sum()
+        total_playing = filtered_df['added_status_playing'].sum()
+        total_completed = filtered_df['added_status_beaten'].sum()
+        
+        stages = ['Awareness', 'Ownership', 'Active Use', 'Completion']
+        values = [total_awareness, total_owned, total_playing, total_completed]
+        
+        # Calculate conversion rates
+        conversion_rates = [100]  # Start at 100% for awareness
+        for i in range(1, len(values)):
+            if values[0] > 0:
+                conversion_rates.append((values[i] / values[0]) * 100)
+            else:
+                conversion_rates.append(0)
+        
+        fig = go.Figure()
+        
+        # Funnel chart
+        fig.add_trace(go.Funnel(
+            y=stages,
+            x=values,
+            textinfo="value+percent initial",
+            marker=dict(color=["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"])
+        ))
+        
+        fig.update_layout(
+            title=f"Customer Lifecycle Funnel - {selected_genre}",
+            font=dict(size=12),
+            height=500
+        )
+        
+        return fig
+        
+    except Exception as e:
+        # Return error funnel if something goes wrong
+        return go.Figure().add_trace(go.Funnel(
+            y=["Data Loading Error"],
+            x=[1],
+            text=[f"Error: {str(e)[:50]}..."]
+        ))
 
 @app.callback(
     Output('cohort-analysis', 'figure'),
