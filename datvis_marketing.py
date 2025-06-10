@@ -177,12 +177,12 @@ def create_marketing_kpi_cards():
         
         html.Div([
             html.H3(f"{avg_engagement:.1f}", className="kpi-number"),
-            html.P("Avg Engagement Score", className="kpi-label")
+            html.P("Avg Community Engagement", className="kpi-label")
         ], className="kpi-card"),
         
         html.Div([
             html.H3(f"{avg_completion_rate:.1f}%", className="kpi-number"),
-            html.P("Avg Completion Rate", className="kpi-label")
+            html.P("Community Completion Rate", className="kpi-label")
         ], className="kpi-card"),
         
         html.Div([
@@ -228,6 +228,26 @@ marketing_layout = html.Div([
     html.P("Data-driven insights for marketing strategy and customer engagement optimization", 
            className="main-subtitle"),
     
+    # Data Disclaimer
+    html.Div([
+        html.H4("📊 Data Source & Methodology", style={"color": "#2c3e50", "margin-bottom": "10px"}),
+        html.P([
+            "This dashboard analyzes ", html.Strong("850K+ games"), " from the RAWG gaming database. ",
+            "The metrics represent ", html.Strong("user-generated engagement data"), " where community members mark games as 'owned', 'playing', 'completed', etc. ",
+            html.Br(),
+            "⚠️ ", html.Strong("Important:"), " These are ", html.Em("not actual sales figures"), " but rather community engagement patterns that provide insights into user behavior and game popularity trends."
+        ], style={"margin": "10px 0", "line-height": "1.6"}),
+        html.P([
+            "🎯 ", html.Strong("Business Value:"), " This type of engagement data is valuable for marketing teams to understand genre preferences, completion rates, and user lifecycle patterns."
+        ], style={"margin": "10px 0", "color": "#27ae60", "font-weight": "500"})
+    ], style={
+        "background-color": "#f8f9fa", 
+        "padding": "20px", 
+        "border-radius": "8px", 
+        "border-left": "4px solid #3498db",
+        "margin": "20px 0"
+    }),
+    
     dcc.Loading(
         id="loading-kpis",
         type="default", 
@@ -235,12 +255,12 @@ marketing_layout = html.Div([
         style={"margin": "20px 0"}
     ),
     
-    # Customer Lifecycle Analysis
+    # User Engagement Analysis
     create_enhanced_chart_section(
-        "Customer Lifecycle Funnel", 
+        "User Engagement Funnel", 
         "lifecycle-funnel",
         include_dropdown=True,
-        description="Track user journey from awareness to completion - critical for optimizing conversion rates"
+        description="Community engagement patterns from game discovery to completion - insights for user acquisition and retention strategies"
     ),
     
     # Cohort Analysis
@@ -383,11 +403,22 @@ def update_lifecycle_funnel(selected_genre):
                     text=["No games found for this genre"]
                 ))
         
-        # Calculate funnel metrics using corrected columns
-        total_awareness = filtered_df['total_users'].sum()
-        total_owned = filtered_df['owned_users'].sum()
-        total_playing = filtered_df['active_users'].sum() 
-        total_completed = filtered_df['completed_users'].sum()
+        # Filter to commercial games (100+ total users) for realistic metrics
+        commercial_games = filtered_df[filtered_df['total_users'] >= 100]
+        
+        # Calculate funnel metrics using commercial games only
+        total_awareness = commercial_games['total_users'].sum()
+        total_owned = commercial_games['owned_users'].sum()
+        total_playing = commercial_games['active_users'].sum() 
+        total_completed = commercial_games['completed_users'].sum()
+        
+        # If no commercial games, fall back to top games
+        if len(commercial_games) == 0:
+            top_games = filtered_df.nlargest(50, 'total_users')
+            total_awareness = top_games['total_users'].sum()
+            total_owned = top_games['owned_users'].sum()
+            total_playing = top_games['active_users'].sum() 
+            total_completed = top_games['completed_users'].sum()
         
         stages = ['Awareness', 'Ownership', 'Active Use', 'Completion']
         values = [total_awareness, total_owned, total_playing, total_completed]
@@ -410,8 +441,11 @@ def update_lifecycle_funnel(selected_genre):
             marker=dict(color=["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"])
         ))
         
+        # Use appropriate game count for title
+        games_count = len(commercial_games) if len(commercial_games) > 0 else len(filtered_df.nlargest(50, 'total_users'))
+        
         fig.update_layout(
-            title=f"Customer Lifecycle Funnel - {selected_genre} ({len(filtered_df)} games)<br><sub>Note: Active Use (current players) vs Completion (total ever completed)</sub>",
+            title=f"User Engagement Funnel - {selected_genre} Popular Games ({games_count} games)<br><sub>Community-reported data: Current players vs Total completions - Games with 100+ community members</sub>",
             font=dict(size=12),
             height=500
         )
