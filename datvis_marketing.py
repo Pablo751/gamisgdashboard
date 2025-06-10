@@ -433,26 +433,78 @@ marketing_layout = html.Div([
             children=[dash_table.DataTable(
                 id='marketing-targets-table',
                 columns=[
-                    {"name": "Game", "id": "name"},
-                    {"name": "Genre", "id": "genres"},  
-                    {"name": "Metacritic", "id": "metacritic"},
-                    {"name": "User Rating", "id": "rating"},
-                    {"name": "Engagement Score", "id": "engagement_score"},
-                    {"name": "Total Users", "id": "total_users"},
-                    {"name": "Completion Rate", "id": "completion_rate"},
-                    {"name": "Year", "id": "year"}
+                    {"name": "Game Title", "id": "name", "type": "text"},
+                    {"name": "Genre", "id": "genres", "type": "text"},  
+                    {"name": "Critic Score", "id": "metacritic", "type": "text"},
+                    {"name": "User Rating", "id": "rating", "type": "text"},
+                    {"name": "Engagement", "id": "engagement_score", "type": "text"},
+                    {"name": "Total Users", "id": "total_users", "type": "text"},
+                    {"name": "Completion", "id": "completion_rate", "type": "text"},
+                    {"name": "Year", "id": "year", "type": "text"}
                 ],
-                style_cell={'textAlign': 'left', 'padding': '10px'},
-                style_header={'backgroundColor': '#3498db', 'color': 'white', 'fontWeight': 'bold'},
+                style_table={
+                    'overflowX': 'auto',
+                    'minWidth': '100%',
+                    'width': '100%',
+                    'maxWidth': '100%'
+                },
+                style_cell={
+                    'textAlign': 'left', 
+                    'padding': '8px', 
+                    'fontSize': '13px',
+                    'fontFamily': 'Arial, sans-serif',
+                    'whiteSpace': 'normal',
+                    'height': 'auto',
+                    'minWidth': '70px',
+                    'maxWidth': '180px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis'
+                },
+                style_cell_conditional=[
+                    {'if': {'column_id': 'name'}, 'width': '22%', 'maxWidth': '180px'},
+                    {'if': {'column_id': 'genres'}, 'width': '12%', 'maxWidth': '100px'},
+                    {'if': {'column_id': 'metacritic'}, 'width': '10%', 'maxWidth': '90px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'rating'}, 'width': '10%', 'maxWidth': '80px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'engagement_score'}, 'width': '12%', 'maxWidth': '100px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'total_users'}, 'width': '12%', 'maxWidth': '100px', 'textAlign': 'right'},
+                    {'if': {'column_id': 'completion_rate'}, 'width': '12%', 'maxWidth': '100px', 'textAlign': 'center'},
+                    {'if': {'column_id': 'year'}, 'width': '10%', 'maxWidth': '80px', 'textAlign': 'center'}
+                ],
+                style_header={
+                    'backgroundColor': '#3498db', 
+                    'color': 'white', 
+                    'fontWeight': 'bold',
+                    'textAlign': 'center',
+                    'fontSize': '12px',
+                    'padding': '10px'
+                },
                 style_data_conditional=[
                     {
                         'if': {'column_id': 'engagement_score'},
                         'backgroundColor': '#e8f5e8',
                         'color': 'black',
+                        'fontWeight': 'bold'
+                    },
+                    {
+                        'if': {
+                            'filter_query': '{engagement_score} >= 50',
+                            'column_id': 'engagement_score'
+                        },
+                        'backgroundColor': '#27ae60',
+                        'color': 'white',
+                    },
+                    {
+                        'if': {
+                            'filter_query': '{engagement_score} >= 30 && {engagement_score} < 50',
+                            'column_id': 'engagement_score'
+                        },
+                        'backgroundColor': '#f39c12',
+                        'color': 'white',
                     }
                 ],
                 page_size=15,
-                sort_action="native"
+                sort_action="native",
+                filter_action="native"
             )],
             style={"margin": "20px 0"}
         ),
@@ -878,14 +930,19 @@ def update_marketing_table(selected_genre):
     # Format data for table
     table_data = []
     for _, row in top_targets.iterrows():
+        # Shorten game titles for mobile
+        game_title = str(row['name'])
+        if len(game_title) > 25:
+            game_title = game_title[:22] + '...'
+            
         table_data.append({
-            'name': row['name'][:30] + ('...' if len(str(row['name'])) > 30 else ''),
-            'genres': row['genres'],
+            'name': game_title,
+            'genres': str(row['genres']),
             'metacritic': f"{row['metacritic']:.0f}" if pd.notna(row['metacritic']) else 'N/A',
             'rating': f"{row['rating']:.1f}" if pd.notna(row['rating']) else 'N/A',
-            'engagement_score': f"{row['engagement_score']:.1f}",
-            'total_users': f"{row['total_users']:,.0f}",
-            'completion_rate': f"{row['completion_rate']*100:.1f}%" if pd.notna(row['completion_rate']) else 'N/A',
+            'engagement_score': f"{row['engagement_score']:.0f}",
+            'total_users': f"{row['total_users']/1000:.0f}k" if row['total_users'] >= 1000 else f"{row['total_users']:.0f}",
+            'completion_rate': f"{row['completion_rate']*100:.0f}%" if pd.notna(row['completion_rate']) else 'N/A',
             'year': f"{row['year']:.0f}" if pd.notna(row['year']) else 'N/A'
         })
     
