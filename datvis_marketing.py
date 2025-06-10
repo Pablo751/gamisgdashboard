@@ -420,8 +420,8 @@ def update_lifecycle_funnel(selected_genre):
             total_playing = top_games['active_users'].sum() 
             total_completed = top_games['completed_users'].sum()
         
-        stages = ['Awareness', 'Ownership', 'Active Use', 'Completion']
-        values = [total_awareness, total_owned, total_playing, total_completed]
+        stages = ['Awareness', 'Ownership', 'Completion', 'Active Use']
+        values = [total_awareness, total_owned, total_completed, total_playing]
         
         # Calculate conversion rates
         conversion_rates = [100]
