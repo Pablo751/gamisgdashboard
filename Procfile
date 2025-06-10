@@ -1,1 +1,1 @@
-web: gunicorn datvis_marketing:server 
+web: gunicorn datvis_marketing:server --bind 0.0.0.0:$PORT 
