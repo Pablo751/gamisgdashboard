@@ -76,6 +76,43 @@ def calculate_marketing_metrics(df):
 df_marketing = calculate_marketing_metrics(df)
 df_marketing_exploded = df_marketing.explode('genres')
 
+# Pre-calculate heavy operations to improve performance
+print("Pre-calculating analytics data...")
+
+# Cache frequently used data
+df_marketing_clean = df_marketing[df_marketing['total_users'] > 0].copy()
+df_marketing_exploded_clean = df_marketing_exploded[df_marketing_exploded['total_users'] > 0].copy()
+
+# Fix the funnel logic - Keep realistic interpretation  
+def recalculate_funnel_metrics(df):
+    """Recalculate funnel with realistic business logic"""
+    df = df.copy()
+    
+    # Total users (awareness/reach)
+    df['total_users'] = (df['added_status_yet'].fillna(0) + 
+                        df['added_status_owned'].fillna(0) + 
+                        df['added_status_beaten'].fillna(0) + 
+                        df['added_status_toplay'].fillna(0) + 
+                        df['added_status_dropped'].fillna(0) + 
+                        df['added_status_playing'].fillna(0))
+    
+    # Ownership (purchased/acquired)
+    df['owned_users'] = df['added_status_owned'].fillna(0)
+    
+    # Active Use = Currently playing (snapshot)
+    df['active_users'] = df['added_status_playing'].fillna(0)
+    
+    # Completion = Total ever completed (cumulative)
+    df['completed_users'] = df['added_status_beaten'].fillna(0)
+    
+    return df
+
+# Recalculate with better logic
+df_marketing_clean = recalculate_funnel_metrics(df_marketing_clean)
+df_marketing_exploded_clean = recalculate_funnel_metrics(df_marketing_exploded_clean)
+
+print("Data pre-processing complete!")
+
 # Cohort Analysis by Release Year
 def create_cohort_data(df):
     """Create cohort analysis data"""
@@ -332,21 +369,31 @@ app.layout = html.Div([
 def update_lifecycle_funnel(selected_genre):
     try:
         if selected_genre == 'All Games':
-            filtered_df = df_marketing
+            filtered_df = df_marketing_clean
         else:
-            filtered_df = df_marketing[df_marketing['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
+            # Use exploded data for genre filtering
+            genre_mask = df_marketing_exploded_clean['genres'] == selected_genre
+            filtered_df = df_marketing_exploded_clean[genre_mask]
+            
+            # If no games found for this genre, return empty funnel
+            if filtered_df.empty:
+                return go.Figure().add_trace(go.Funnel(
+                    y=["No Data"],
+                    x=[0],
+                    text=["No games found for this genre"]
+                ))
         
-        # Calculate funnel metrics
+        # Calculate funnel metrics using corrected columns
         total_awareness = filtered_df['total_users'].sum()
-        total_owned = filtered_df['added_status_owned'].sum()
-        total_playing = filtered_df['added_status_playing'].sum()
-        total_completed = filtered_df['added_status_beaten'].sum()
+        total_owned = filtered_df['owned_users'].sum()
+        total_playing = filtered_df['active_users'].sum() 
+        total_completed = filtered_df['completed_users'].sum()
         
         stages = ['Awareness', 'Ownership', 'Active Use', 'Completion']
         values = [total_awareness, total_owned, total_playing, total_completed]
         
         # Calculate conversion rates
-        conversion_rates = [100]  # Start at 100% for awareness
+        conversion_rates = [100]
         for i in range(1, len(values)):
             if values[0] > 0:
                 conversion_rates.append((values[i] / values[0]) * 100)
@@ -355,7 +402,7 @@ def update_lifecycle_funnel(selected_genre):
         
         fig = go.Figure()
         
-        # Funnel chart
+        # Funnel chart with better colors
         fig.add_trace(go.Funnel(
             y=stages,
             x=values,
@@ -364,7 +411,7 @@ def update_lifecycle_funnel(selected_genre):
         ))
         
         fig.update_layout(
-            title=f"Customer Lifecycle Funnel - {selected_genre}",
+            title=f"Customer Lifecycle Funnel - {selected_genre} ({len(filtered_df)} games)<br><sub>Note: Active Use (current players) vs Completion (total ever completed)</sub>",
             font=dict(size=12),
             height=500
         )
@@ -460,15 +507,15 @@ def update_genre_matrix(pathname):
 )
 def update_engagement_distribution(selected_genre):
     if selected_genre == 'All Games':
-        filtered_df = df_marketing
+        filtered_df = df_marketing_clean
     else:
-        filtered_df = df_marketing[df_marketing['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
+        filtered_df = df_marketing_exploded_clean[df_marketing_exploded_clean['genres'] == selected_genre]
     
     fig = px.histogram(
         filtered_df, 
         x='engagement_score',
         nbins=20,
-        title=f'Engagement Score Distribution - {selected_genre}',
+        title=f'Engagement Score Distribution - {selected_genre} ({len(filtered_df)} games)',
         labels={'engagement_score': 'Engagement Score (0-100)', 'count': 'Number of Games'},
         color_discrete_sequence=['#45B7D1']
     )
@@ -486,19 +533,19 @@ def update_engagement_distribution(selected_genre):
 )
 def update_churn_analysis(selected_genre):
     if selected_genre == 'All Games':
-        filtered_df = df_marketing_exploded
+        filtered_df = df_marketing_exploded_clean
     else:
-        filtered_df = df_marketing_exploded[df_marketing_exploded['genres'] == selected_genre]
+        filtered_df = df_marketing_exploded_clean[df_marketing_exploded_clean['genres'] == selected_genre]
     
     # Create churn vs completion scatter plot
     fig = px.scatter(
-        filtered_df,
+        filtered_df.head(500),  # Limit for performance
         x='churn_rate',
         y='completion_rate', 
         color='engagement_score',
         size='total_users',
         hover_data=['name', 'metacritic'],
-        title=f'Churn vs Completion Analysis - {selected_genre}',
+        title=f'Churn vs Completion Analysis - {selected_genre} ({len(filtered_df)} games)',
         labels={
             'churn_rate': 'Churn Rate',
             'completion_rate': 'Completion Rate',
@@ -515,13 +562,13 @@ def update_churn_analysis(selected_genre):
 )
 def update_market_penetration(selected_genre):
     if selected_genre == 'All Games':
-        filtered_df = df_marketing
+        filtered_df = df_marketing_clean
     else:
-        filtered_df = df_marketing[df_marketing['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
+        filtered_df = df_marketing_clean[df_marketing_clean['genres'].apply(lambda x: selected_genre in x if isinstance(x, list) else False)]
     
-    # Process platform data
+    # Process platform data (optimized)
     platform_data = []
-    for _, row in filtered_df.iterrows():
+    for _, row in filtered_df.head(1000).iterrows():  # Limit for performance
         if pd.notna(row['platforms']):
             platforms = row['platforms'].split('||')
             for platform in platforms:
@@ -556,7 +603,7 @@ def update_market_penetration(selected_genre):
         return fig
     
     # Return empty figure if no data
-    return px.bar()
+    return px.bar(title="No platform data available")
 
 @app.callback(
     Output('business-recommendations', 'children'),
