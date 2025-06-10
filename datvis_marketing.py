@@ -280,9 +280,10 @@ def update_lifecycle_funnel(selected_genre):
     return fig
 
 @app.callback(
-    Output('cohort-analysis', 'figure')
+    Output('cohort-analysis', 'figure'),
+    [Input('url', 'pathname')]
 )
-def update_cohort_analysis(_=None):
+def update_cohort_analysis(pathname):
     fig = make_subplots(
         rows=2, cols=2,
         subplot_titles=('Ownership Rate by Year', 'Engagement Rate by Year', 
@@ -328,9 +329,10 @@ def update_cohort_analysis(_=None):
     return fig
 
 @app.callback(
-    Output('genre-matrix', 'figure')
+    Output('genre-matrix', 'figure'),
+    [Input('url', 'pathname')]
 )
-def update_genre_matrix(_=None):
+def update_genre_matrix(pathname):
     # Create bubble chart showing genre performance
     fig = px.scatter(
         genre_performance.head(15), 
@@ -457,9 +459,10 @@ def update_market_penetration(selected_genre):
     return px.bar()
 
 @app.callback(
-    Output('business-recommendations', 'children')
+    Output('business-recommendations', 'children'),
+    [Input('url', 'pathname')]
 )
-def update_recommendations(_=None):
+def update_recommendations(pathname):
     # Generate dynamic recommendations based on data
     top_genre = genre_performance.iloc[0]
     worst_churn_genre = genre_performance.loc[genre_performance['churn_rate'].idxmin()]
