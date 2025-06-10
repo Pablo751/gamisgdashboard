@@ -248,7 +248,73 @@ marketing_layout = html.Div([
     html.Div([
         html.H2("Strategic Recommendations", className="recommendations-title"),
         html.Div(id="business-recommendations", className="recommendations-content")
-    ], className="recommendations-section")
+    ], className="recommendations-section"),
+    
+    # Top Performing Games Analysis
+    create_enhanced_chart_section(
+        "Top Reviewed Games Analysis", 
+        "top-games-analysis",
+        include_dropdown=True,
+        description="Identify market leaders and success patterns for competitive intelligence and content strategy"
+    ),
+    
+    # Review Quality vs Volume Matrix  
+    create_enhanced_chart_section(
+        "Review Quality vs Volume Matrix", 
+        "review-matrix",
+        include_dropdown=True,
+        description="Discover games with both high quality and high buzz - perfect targets for marketing partnerships"
+    ),
+    
+    # Marketing Performance Table
+    html.Div([
+        html.H2("Top Marketing Targets", className="chart-title"),
+        html.P("Games with highest marketing potential based on engagement, reviews, and user metrics", className="chart-description"),
+        dcc.Dropdown(
+            id='marketing-table-dropdown',
+            options=[{'label': 'All Games', 'value': 'All Games'}] + 
+                   [{'label': genre, 'value': genre} for genre in unique_genres],
+            value='All Games',
+            className="genre-dropdown"
+        ),
+        dcc.Loading(
+            id="loading-marketing-table",
+            type="default",
+            children=[dash_table.DataTable(
+                id='marketing-targets-table',
+                columns=[
+                    {"name": "Game", "id": "name"},
+                    {"name": "Genre", "id": "genres"},  
+                    {"name": "Metacritic", "id": "metacritic"},
+                    {"name": "User Rating", "id": "rating"},
+                    {"name": "Engagement Score", "id": "engagement_score"},
+                    {"name": "Total Users", "id": "total_users"},
+                    {"name": "Completion Rate", "id": "completion_rate"},
+                    {"name": "Year", "id": "year"}
+                ],
+                style_cell={'textAlign': 'left', 'padding': '10px'},
+                style_header={'backgroundColor': '#3498db', 'color': 'white', 'fontWeight': 'bold'},
+                style_data_conditional=[
+                    {
+                        'if': {'column_id': 'engagement_score'},
+                        'backgroundColor': '#e8f5e8',
+                        'color': 'black',
+                    }
+                ],
+                page_size=15,
+                sort_action="native"
+            )],
+            style={"margin": "20px 0"}
+        ),
+        html.Hr(className="section-divider")
+    ], className="chart-section"),
+    
+    # Critical Success Factors
+    create_enhanced_chart_section(
+        "Critical Success Factors", 
+        "success-factors",
+        description="Key metrics correlation analysis - what drives game success for strategic planning"
+    )
     
 ], className="marketing-dashboard")
 
@@ -525,6 +591,163 @@ def update_recommendations(pathname):
     ]
     
     return recommendations
+
+@app.callback(
+    Output('top-games-analysis', 'figure'),
+    [Input('top-games-analysis-dropdown', 'value')]
+)
+def update_top_games_analysis(selected_genre):
+    if selected_genre == 'All Games':
+        filtered_df = df_marketing_exploded[df_marketing_exploded['metacritic'].notna()]
+    else:
+        filtered_df = df_marketing_exploded[
+            (df_marketing_exploded['genres'] == selected_genre) & 
+            (df_marketing_exploded['metacritic'].notna())
+        ]
+    
+    # Get top 20 games by combined score (metacritic + user rating + engagement)
+    filtered_df['combined_score'] = (
+        (filtered_df['metacritic'] / 100 * 0.4) + 
+        (filtered_df['rating'] / 5 * 0.3) + 
+        (filtered_df['engagement_score'] / 100 * 0.3)
+    ) * 100
+    
+    top_games = filtered_df.nlargest(20, 'combined_score')
+    
+    fig = px.bar(
+        top_games,
+        x='combined_score',
+        y='name', 
+        color='metacritic',
+        title=f'Top Reviewed Games - {selected_genre}',
+        labels={
+            'combined_score': 'Marketing Appeal Score (0-100)',
+            'name': 'Game Title',
+            'metacritic': 'Metacritic Score'
+        },
+        color_continuous_scale='Viridis',
+        height=800
+    )
+    
+    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+    return fig
+
+@app.callback(
+    Output('review-matrix', 'figure'),
+    [Input('review-matrix-dropdown', 'value')]
+)
+def update_review_matrix(selected_genre):
+    if selected_genre == 'All Games':
+        filtered_df = df_marketing_exploded[
+            (df_marketing_exploded['metacritic'].notna()) & 
+            (df_marketing_exploded['reviews_count'].notna())
+        ]
+    else:
+        filtered_df = df_marketing_exploded[
+            (df_marketing_exploded['genres'] == selected_genre) & 
+            (df_marketing_exploded['metacritic'].notna()) & 
+            (df_marketing_exploded['reviews_count'].notna())
+        ]
+    
+    # Focus on games with significant review activity
+    filtered_df = filtered_df[filtered_df['reviews_count'] > 10]
+    
+    fig = px.scatter(
+        filtered_df.head(200),  # Top 200 for performance
+        x='reviews_count',
+        y='metacritic',
+        size='total_users',
+        color='engagement_score',
+        hover_data=['name', 'rating', 'year'],
+        title=f'Review Quality vs Volume Matrix - {selected_genre}',
+        labels={
+            'reviews_count': 'Number of Reviews (Buzz Factor)',
+            'metacritic': 'Metacritic Score (Quality)',
+            'total_users': 'Total Users',
+            'engagement_score': 'Engagement Score'
+        },
+        color_continuous_scale='RdYlBu'
+    )
+    
+    # Add quadrant lines
+    median_reviews = filtered_df['reviews_count'].median()
+    median_metacritic = filtered_df['metacritic'].median()
+    
+    fig.add_hline(y=median_metacritic, line_dash="dash", line_color="gray", 
+                  annotation_text="Quality Threshold")
+    fig.add_vline(x=median_reviews, line_dash="dash", line_color="gray",
+                  annotation_text="Buzz Threshold")
+    
+    return fig
+
+@app.callback(
+    Output('marketing-targets-table', 'data'),
+    [Input('marketing-table-dropdown', 'value')]
+)
+def update_marketing_table(selected_genre):
+    if selected_genre == 'All Games':
+        filtered_df = df_marketing_exploded
+    else:
+        filtered_df = df_marketing_exploded[df_marketing_exploded['genres'] == selected_genre]
+    
+    # Calculate marketing priority score
+    filtered_df['marketing_score'] = (
+        (filtered_df['engagement_score'] / 100 * 0.3) +
+        (filtered_df['metacritic'].fillna(0) / 100 * 0.25) +
+        (filtered_df['rating'].fillna(0) / 5 * 0.25) +
+        (filtered_df['completion_rate'].fillna(0) * 0.2)
+    ) * 100
+    
+    # Get top marketing targets
+    top_targets = filtered_df.nlargest(25, 'marketing_score')
+    
+    # Format data for table
+    table_data = []
+    for _, row in top_targets.iterrows():
+        table_data.append({
+            'name': row['name'][:30] + ('...' if len(str(row['name'])) > 30 else ''),
+            'genres': row['genres'],
+            'metacritic': f"{row['metacritic']:.0f}" if pd.notna(row['metacritic']) else 'N/A',
+            'rating': f"{row['rating']:.1f}" if pd.notna(row['rating']) else 'N/A',
+            'engagement_score': f"{row['engagement_score']:.1f}",
+            'total_users': f"{row['total_users']:,.0f}",
+            'completion_rate': f"{row['completion_rate']*100:.1f}%" if pd.notna(row['completion_rate']) else 'N/A',
+            'year': f"{row['year']:.0f}" if pd.notna(row['year']) else 'N/A'
+        })
+    
+    return table_data
+
+@app.callback(
+    Output('success-factors', 'figure'),
+    [Input('url', 'pathname')]
+)
+def update_success_factors(pathname):
+    # Create correlation matrix of key success metrics
+    success_metrics = df_marketing_exploded[
+        ['metacritic', 'rating', 'total_users', 'engagement_score', 
+         'completion_rate', 'ownership_rate', 'playtime']
+    ].dropna()
+    
+    # Calculate correlation matrix
+    corr_matrix = success_metrics.corr()
+    
+    # Create heatmap
+    fig = px.imshow(
+        corr_matrix,
+        labels=dict(x="Metrics", y="Metrics", color="Correlation"),
+        x=['Metacritic', 'User Rating', 'Total Users', 'Engagement Score', 
+           'Completion Rate', 'Ownership Rate', 'Playtime'],
+        y=['Metacritic', 'User Rating', 'Total Users', 'Engagement Score', 
+           'Completion Rate', 'Ownership Rate', 'Playtime'],
+        color_continuous_scale='RdBu',
+        title="Success Factors Correlation Matrix"
+    )
+    
+    # Add correlation values as text
+    fig.update_traces(text=corr_matrix.round(2), texttemplate="%{text}")
+    fig.update_layout(height=600)
+    
+    return fig
 
 # Routing callback
 @app.callback(
